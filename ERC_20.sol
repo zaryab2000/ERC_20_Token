@@ -29,6 +29,10 @@ contract ERC20_Token is SafeMath{
     uint8 public decimals = 18;
     uint public totalSupply;
     
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed _owner, address _spender, uint256 value);
+    event Burn(address indexed from, uint256 value);
+    
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address=>uint256)) public allowance;
     
@@ -54,8 +58,8 @@ contract ERC20_Token is SafeMath{
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
         
+        emit Transfer(_from,_to,_value);
         assert(safeAdd(balanceOf[_from],balanceOf[_to])==initial_Balance);
-        
     }
     
     
@@ -74,6 +78,8 @@ contract ERC20_Token is SafeMath{
      function approve(address _spender, uint256 _value) public returns(bool success){
         
         allowance[msg.sender][_spender] = _value;
+        
+        emit Approval(msg.sender, _spender,_value);
         return true;
     }
     
@@ -91,7 +97,7 @@ contract ERC20_Token is SafeMath{
         
         balanceOf[msg.sender] -= _value;
         totalSupply -= _value;
-        
+        emit Burn(msg.sender,_value);
         return true;
     }
     
@@ -101,6 +107,9 @@ contract ERC20_Token is SafeMath{
         
         balanceOf[_from] -= _value;
         totalSupply -= _value;
+        
+        emit Burn(msg.sender,_value);
+
         return true;
         
     }
