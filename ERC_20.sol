@@ -86,5 +86,24 @@ contract ERC20_Token is SafeMath{
         }
     }
     
+    function burn(uint256 _value) public returns(bool success){
+        require(balanceOf[msg.sender]>=_value);
+        
+        balanceOf[msg.sender] -= _value;
+        totalSupply -= _value;
+        
+        return true;
+    }
+    
+    function burnFrom(address _from,uint256 _value) public returns(bool success){
+        require(_value>=allowance[_from][msg.sender]);
+        require(balanceOf[_from]>=_value);
+        
+        balanceOf[_from] -= _value;
+        totalSupply -= _value;
+        return true;
+        
+    }
+    
     
 }
