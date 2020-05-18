@@ -1,5 +1,9 @@
 pragma solidity ^0.4.24;
 
+interface receiptToken{ 
+    function receiveApproval(address _from, uint256 _value, address _token, bytes32 _extraData) external;
+}
+
 contract SafeMath {
     function safeAdd(uint a, uint b) public pure returns (uint c) {
         c = a + b;
@@ -71,6 +75,15 @@ contract ERC20_Token is SafeMath{
         
         allowance[msg.sender][_spender] = _value;
         return true;
+    }
+    
+    function approveAndCall(address _spender, uint256 _value, bytes32 _extraData) public returns(bool success){
+        receiptToken spender = receiptToken(_spender);
+        
+        if(approve(_spender,_value)){
+            spender.receiveApproval(msg.sender,_value,this, _extraData);
+            return true; 
+        }
     }
     
     
