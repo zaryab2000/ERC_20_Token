@@ -1,0 +1,77 @@
+pragma solidity ^0.4.24;
+
+contract SafeMath {
+    function safeAdd(uint a, uint b) public pure returns (uint c) {
+        c = a + b;
+        require(c >= a);
+    }
+    function safeSub(uint a, uint b) public pure returns (uint c) {
+        require(b <= a);
+        c = a - b;
+    }
+    function safeMul(uint a, uint b) public pure returns (uint c) {
+        c = a * b;
+        require(a == 0 || c / a == b);
+    }
+    function safeDiv(uint a, uint b) public pure returns (uint c) {
+        require(b > 0);
+        c = a / b;
+    }
+}
+
+contract ERC20_Token is SafeMath{
+    string public name;
+    string public symbol;
+    uint8 public decimals = 18;
+    uint public totalSupply;
+    
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address=>uint256)) public allowance;
+    
+    constructor(
+        uint256 initialSupply,
+        string tokenName,
+        string tokenSymbol) public
+        {
+        totalSupply = initialSupply*10 **uint256(decimals);
+        balanceOf[msg.sender] = totalSupply;
+        name = tokenName;
+        symbol = tokenSymbol;
+        }
+   
+      
+    function _transfer(address _from, address _to, uint256 _value) internal{
+        require(_to != 0x0);
+        require(balanceOf[_from] >= _value);
+        require(safeAdd(balanceOf[_to], _value) >= balanceOf[_to]);
+        
+        uint256 initial_Balance = safeAdd(balanceOf[_from], balanceOf[_to]);
+        
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        
+        assert(safeAdd(balanceOf[_from],balanceOf[_to])==initial_Balance);
+        
+    }
+    
+    
+    function transfer(address _to, uint256 _value) public returns(bool success){
+        _transfer(msg.sender, _to,_value);
+        return true;
+    }
+    
+    function transferFrom(address _from, address _to, uint256 _value) public{
+        require(_value <= allowance[_from][msg.sender]);
+        allowance[_from][msg.sender] -= _value;
+        _transfer(_from, _to,_value);
+        
+    }
+    
+     function approve(address _spender, uint256 _value) public returns(bool success){
+        
+        allowance[msg.sender][_spender] = _value;
+        return true;
+    }
+    
+    
+}
